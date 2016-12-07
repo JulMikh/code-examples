@@ -1,0 +1,866 @@
+
+<!-- FX Container -->
+<div id="fx-container" class="fx-opacity">
+	<!-- Page content -->
+	<div id="page-content" class="block">
+		
+		<!-- Fund Profile Header -->
+		<div class="block-header" style="margin-right: 0px;">
+			<div class="row remove-margin">
+				<div class="col-md-12">
+					<?php if ($this->manager && $this->not_as_investor): ?>
+					<div class="col-md-9">
+					<?php endif; ?>
+					
+					<div class="header-section inline provider-type">
+						<h1> <?php echo $this->provider['type_title']; ?> </h1>
+						<?php if ($this->provider['confirmed'] == '2'): ?>
+							<span class="confirmed confirmed-icon" title="Relationship confirmed<?php if ($this->provider['confirmation_date']) echo ' on '.$this->provider['confirmation_date'];?>">Confirmed <i class="fa fa-check"></i> </span>
+						<?php else: ?>
+							<span class="pending pending-icon" title="Pending">Pending <i class="fa fa-clock-o"></i> </span>
+						<?php endif; ?>
+						<span class="text-success"> Relationship: <b><?php if ($this->provider['relationship_start_date'] === NULL || $this->provider['relationship_start_date'] == date('m/d/Y')) 
+										echo 'Inception to date';
+										else echo $this->provider['relationship_start_date'].' to date';?></b> </span>
+					</div>
+					
+					
+					<?php if ($this->manager && $this->not_as_investor): ?>
+					</div>
+						<div class="col-md-3"> 
+        					<a href="#" class="btn_blue_with_plus" id="js-add-doc" title="Add New Document">
+        						<span class="plus"></span>Add New Document
+        					</a>
+        				</div>
+    				<?php endif; ?>
+ 					
+				</div>
+			</div>
+		</div>
+		<!-- END Fund Profile Header -->
+		
+		<?php $this->getMessageBlock(); ?>
+		
+		<!-- Add new document section -->
+		<div class="add_new_document">
+    		<form action="<?php echo $this->getUrl('fund_manager/documents_save/'); ?>" method="post" enctype="multipart/form-data" 
+    			  class="form-horizontal" id="form-add-doc" novalidate="novalidate">
+        
+        		<input type="hidden" name="is_ajax" value="1" />
+       			<input type="hidden" name="source" value="service_providers" />
+        		<input name="reference_id" value="<?php echo $this->provider['provider_id']; ?>" hidden />
+        		<input type="hidden" id="subact" value="email" />
+        		<?php echo $this->renderElement('hidden', 'q', $this->getDict($_REQUEST, 'q')); ?>
+        		
+        		<h3>Add new document</h3>
+       			<div>
+            		<div id="doc-title" class="input-group placeholder-form" style="width: 20%;">
+                		<label for="doc-title-ipt">Document Title <span>*</span></label>
+                		<input type="text" id="doc-title-ipt" name="title" class="form-control input-lg" value="" required>
+            		</div>
+       
+               		<div id="add_category_id" class="input-group placeholder-form" style="width: 27%;">
+                   		<select class="selectpicker form-control show-menu-arrow" data-size="false" data-width="auto" name="category_id">
+                   			<option value="none" style="display: none;">Please select category</option>
+                       		<?php foreach ($this->categories as $category): ?>
+                               	<option value="<?php echo $category['category_id']; ?>"><?php echo $category['title']; ?></option>
+                       		<?php endforeach; ?>
+                   		</select>
+               		</div>
+
+            		<div id="other_cat" class="input-group placeholder-form" style="display: none;">
+           	 			<label for="sub_cat_val">Other <span>*</span></label>
+            			<input id="sub_cat_val" type="text" class="form-control input-lg" name="category_other" value="" />
+            		</div>
+               		
+             		<div id="doc-date" class="input-group placeholder-form">
+                		<label for="doc-date-ipt">Date <span>*</span></label>
+                		<input type="text" id="doc-date-ipt" name="document_date" class="form-control input-lg input-datepicker-close" data-date-format="mm/dd/yy" value="" required>
+            		</div>
+            		
+            		<div id="doc-visibility" class="input-group placeholder-form">
+                		<select name="public" id="public" class="selectpicker form-control show-menu-arrow" data-size="false" data-width="auto">
+                    		<option style="display: none;">Visibility</option>
+                    		<option value="1">Private</option>
+                    		<option value="2">Open</option>
+                		</select>
+            		</div>
+        		</div>
+        		
+        		<div class="downloader">
+		 			<label class="f-upload">Upload Document <span>*</span> : </label>
+         			<div class="file_upload">
+          				<button type="button">Choose file</button>
+        				<span> no file selected</span>
+       	 				<input type="file" name="document" class="form-control" id="mm-file" required value="">
+    				</div>
+        		</div>
+        
+        		<div class="form-group">
+            		<div class="button-group">
+                		<div class="button-block">
+                    		<button type="submit" disabled id="doc-send" class="btn content-button-invite send"><span>Submit</span></button>
+                    		<button type="button" disabled id="doc-send-email" class="btn content-button-invite send"><i class="send-invite"></i><span>Submit & Email</span></button>
+                		</div>
+            		</div>
+        		</div>
+    		</form>
+		</div>	
+		<!-- END Add new document section -->
+		
+		
+		
+		<!-- Service Provider Information -->
+		<div class="row remove-margin">
+			<div class="block-section" id="provider-information">
+				<div class="row">
+					
+					<div class="col-md-12">
+						<div class="col-md-5">
+							<h2><?php echo $this->provider['firm']; ?></h2>
+						</div>
+					</div>
+
+					<div class="col-md-12">
+						<div class="col-md-4 line-expanded">
+							<div class="col-md-12 padding0">
+								<div class="col-md-3 label-provider padding0">Contact: </div>
+								<div class="col-md-9 info-provider"><?php echo $this->provider['contact_firstname'].' '.$this->provider['contact_lastname']; ?></div>
+							</div>
+						</div>
+						<div class="col-md-6 line-expanded">
+							<div class="col-md-12 padding0">
+								<div class="col-md-2 label-provider padding0">Address: </div>
+								<div class="col-md-10 info-provider"><?php echo $this->provider['address']; ?></div>
+							</div>
+						</div>
+						<?php if ($this->manager && $this->not_as_investor) { ?>
+							<div class="col-md-2 line-expanded text-right btn-group padding0">
+								<div class="user_operations">
+									<a href="#" style="text-decoration: none;">
+										<span class="edit-profile line-expanded"><i class="fa fa-pencil"></i> Edit</span>
+									</a>
+									<a class="user_delete" href="<?php echo $this->getUrl('fund_manager/service_providers_delete/'.$_REQUEST['q'].'/?provider_id='.$this->provider['provider_id'].'&amp;redirect=1');  ?>" title="Remove Provider">
+										<span class="delete-profile line-expanded"><i class="fa fa-times"></i></span>
+									</a>
+								</div>
+							</div>
+						<?php } ?>
+					</div>
+					
+					<div class="col-md-12">
+						<div class="col-md-4">
+							<div class="col-md-12 padding0">
+								<div class="col-md-3 label-provider padding0">Phone: </div>
+								<div class="col-md-9 info-provider"><?php echo $this->provider['telephone']; ?></div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="col-md-12 padding0">
+								<div class="col-md-2 label-provider padding0">E-mail: </div>
+								<div class="col-md-10 info-provider"><?php echo $this->provider['email']; ?></div>
+							</div>
+						</div>
+					</div>	
+					
+				</div>			
+			</div> 
+		</div>
+		<!-- END Service Provider Information -->
+
+			
+			
+		<!-- Edit Service Provider Information Section-->	
+		<?php if ($this->manager && $this->not_as_investor): ?>
+			<div class="block-section" id="add-new-service-provider" hidden="hidden">
+				<h2>Edit service provider</h2>
+	
+				<div id="form" class="row">
+					<form action="<?php echo $this->getUrl('fund_manager/providers_save/'.$_REQUEST['q']); ?>" method="post" enctype="multipart/form-data" class="form-horizontal" id="form-validation">
+							
+						<input type="hidden" name="is_ajax" value="1" />
+						<input name="provider_id" value="<?php echo $this->provider['provider_id'];?>" hidden="hidden">
+						<input name="confirmed" value="<?php echo $this->provider['confirmed'];?>" hidden="hidden">
+						
+								
+						<div class="col-md-12">
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form">
+									<select name="provider_type_id" id="provider_type_id" class="selectpicker form-control show-menu-arrow required changed">
+										<option disabled="disabled" selected="selected" value="0">Service Provider Type *</option>
+										<?php foreach ($this->provider_types as $id => $title): ?>
+											<option value="<?php echo $id; ?>" <?php if ($this->provider['provider_type_id']== $id) echo 'selected="selected"';?>><?php echo $title; ?></option>
+										<?php endforeach; ?>
+									</select>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>				
+							</div>
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form firm-input">
+									<input type="text" id="firm" name="firm" class="form-control required <?php if($this->provider['firm']) echo 'changed';?>" value="<?php echo $this->provider['firm'];?>" required>
+									<label class="placeholder" for="firm">Firm Name <span>*</span></label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>
+							</div>
+							
+							<script src="/js/vendor/jquery-ui.js"></script>
+							<script>
+								var availableFirms = [];
+								<?php foreach ($this->provider_suggestions as $key => $value): ?>
+									availableFirms[<?php echo $key?>] = [<?php foreach ($value as $id => $title): ?>"<?php echo $title[0]; ?>",<?php endforeach; ?>];
+								<?php endforeach; ?>
+														
+								$( "#firm" ).autocomplete({
+						       		source: availableFirms[<?php echo $this->provider['provider_type_id'];?>]
+						      	});
+							</script>
+							
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form">
+									<input type="text" id="contact_firstname" name="contact_firstname" class="form-control required changed" value="<?php echo $this->provider['contact_firstname'];?>" required>
+									<label class="placeholder" for="contact_firstname">Contact First Name <span>*</span></label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>
+							</div>
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form">
+									<input type="text" id="contact_lastname" name="contact_lastname" class="form-control required changed" value="<?php echo $this->provider['contact_lastname'];?>" required>
+									<label class="placeholder" for="contact_lastname">Contact Last Name <span>*</span></label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>
+							</div>
+						</div>
+									
+						<div class="col-md-12">
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form telephone">
+									<input type="text" id="telephone" name="telephone" value="<?php echo $this->provider['telephone'];?>" class="form-control required changed" placeholder=" "/>
+								</div>
+							</div>
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form">
+									<input type="text" id="email" name="email" class="form-control required changed" value="<?php echo $this->provider['email'];?>" required>
+									<label class="placeholder" for="email">Email <span>*</span></label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>
+							</div>
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form">
+									<input type="text" id="relationship_duration" class="form-control input-datepicker-close modal_document_date"
+										<?php echo $this->provider['relationship_start_date'] == date('m/d/Y') ? 'disabled' : '';?>
+										data-date-format="mm/dd/yyyy" value="<?php echo $this->provider['relationship_start_date'] == date('m/d/Y') ? '' : $this->provider['relationship_start_date'];?>">
+									<label class="placeholder" for="relationship_duration">Relationship Duration <span>*</span></label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>		
+							</div> 
+							<div class="col-md-3"> 
+								<div class="inline">
+									<i style="color: #8fa6ad;">or </i> <input type="checkbox" id="relationship" <?php echo $this->provider['relationship_start_date'] == date('m/d/Y') ? 'checked' : '';?>/> <label>Relationship Since Inception</label>
+									<input name="relationship_start_date" id="rel" value="<?php echo $this->provider['relationship_start_date'];?>" class="form-control hidden reqiured changed"/>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-md-12">
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form fax">
+									<input type="text" id="fax" name="fax" value="<?php echo $this->provider['fax'];?>" class="form-control" placeholder=" "/>
+								</div>
+							</div>
+							<div class="col-md-6"> 
+								<div class="input-group-placeholder-form">
+									<input type="text" id="address1" name="address1" class="form-control required changed" value="<?php echo $this->provider['address1'];?>" required>
+									<label class="placeholder" for="address1">Address <span>*</span></label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>
+							</div>
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form">
+									<input type="text" id="address2" name="address2" class="form-control" value="<?php echo $this->provider['address2'];?>">
+									<label class="placeholder" for="address2">Address 2</label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-12">
+							<div class="col-md-3">
+								<div class="input-group-placeholder-form">
+									<input type="text" id="city" name="city" class="form-control required changed" value="<?php echo $this->provider['city'];?>" required>
+									<label class="placeholder" for="city">City <span>*</span></label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="input-group-placeholder-form">
+									<select name="state_id" id="state" class="selectpicker form-control show-menu-arrow">
+										<option  value="0">State</option> <!-- data-hidden="true" -->
+										<?php foreach ($this->states as $state): ?>
+											<option value="<?php echo $state['id']; ?>" <?php if ($this->provider['state_id']== $state['id']) echo 'selected="selected"';?>><?php echo $state['title'].' ('.$state['postal_abbr'].')'; ?></option>
+										<?php endforeach; ?>
+									</select>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div> 
+							</div>
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form">
+									<input type="text" id="zip" name="zip" class="form-control changed" value="<?php echo $this->provider['zip'];?>">
+									<label class="placeholder" for="zip">Zip Code</label>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div> 
+							</div>
+							<div class="col-md-3"> 
+								<div class="input-group-placeholder-form">
+									<select name="country_id" id="country" class="selectpicker form-control show-menu-arrow required" required>
+										<option data-hidden="true" value="0">Country *</option>
+										<?php foreach ($this->countries as $country): ?>
+											<option value="<?php echo $country['id']; ?>" <?php if ($this->provider['country_id']== $country['id']) echo 'selected="selected"';?>><?php echo $country['title']; ?></option>
+										<?php endforeach; ?>
+									</select>
+									<label class="placeholder-check hidden" ><i class="fa fa-check"></i></label>
+								</div> 
+							</div>
+						</div>
+									
+						<div class="col-md-12 text-center add-sprovider">
+       						<button type="button" id="cancel" class="btn content-button-invite"><span>Cancel</span></button>
+   							<button type="submit" disabled id="submit" class="btn content-button-invite"><span>Save</span></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		<?php endif; ?>
+		<!-- END Edit Service Provider Information Section-->		
+			
+			
+		<!-- Key Documents Section  -->
+		<div class="block-section table-responsive paginate-only">	
+			<table  class="table table-hover marketing-materials-datatable key-doc-table">
+				<thead>
+					<tr>
+                		<th class="parent-title-th key-document-table">Key Documents</th>
+						<th>Category</th>
+						<th>Date</th>
+						<?php if ($this->manager && $this->not_as_investor): ?>
+							<th>Visibility</th>
+						<?php endif; ?>
+						<th class="text-center">View</th>
+				
+						<?php if ($this->manager && $this->not_as_investor): ?>
+							<th class="text-right">Actions</th>
+						<?php endif; ?>
+					</tr>
+				</thead>
+				<tbody>
+				<?php foreach ($this->provider_docs as $row): ?>
+					<tr class="table-row-<?php echo $row['document_id']; ?>">
+						<td class="title"><a href="<?php echo $this->getUrl('document/view_frame/'.$row['document_code']); ?>" target="_blank"><?php echo $row['title']; ?></a></td>
+						<td class="category_other"><?php echo $row['category_title']=='Other' ? $row['category_other'] : $row['category_title']; ?></td>
+						<td class="document_date"><?php echo $this->renderDate($row['document_date']); ?></td>
+						<?php if ($this->manager && $this->not_as_investor): ?>
+							<?php if ($row['public'] == '2'): ?>
+								<td>Open</td>
+							<?php else: ?>
+								<td>Private</td>
+							<?php endif; ?>
+						<?php endif; ?>
+						<td class="text-center">
+							<a href="<?php echo $this->getUrl('document/view_frame/'.$row['document_code']); ?>" 
+								target="_blank" data-toggle="tooltip" title="View Document">
+								<i class="<?php echo $this->_getIconByType($row['mime_type']); ?>"></i>
+							</a>
+						</td>
+						<?php if ($this->manager && $this->not_as_investor): ?>
+						<td class="text-right">
+							<div class="btn-group">
+								<a href="#modal-edit-document" data-toggle="modal" data-toggle="tooltip" 
+									data-docid="<?php echo $row['document_id']; ?>" data-category_id="<?php echo $row['category_id']; ?>" 
+									data-parent_id="<?php echo $row['parent_id']; ?>" 
+									data-child_category="<?php echo $row['category_other']; ?>" data-public="<?php echo $row['public']; ?>" 
+									title="Edit" class="btn btn-xs btn-info cs-editor"><i class="gi gi-pencil"></i></a>
+									
+								<a href="<?php echo $this->getUrl('fund_manager/documents_delete/'.$_REQUEST['q'].'/?id='.$row['document_id'].
+									'&amp;is_ajax=1&amp;source=service_provider_view&amp;provider='.$this->provider['provider_id']); ?>" data-toggle="tooltip" title="Delete" 
+									class="btn btn-xs btn-info" onclick="return confirm('Are you sure you want to delete this document?')">
+									<i class="gi gi-remove_2"></i></a>
+							</div>
+						</td>
+						<?php endif; ?>
+					</tr>
+				<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+		<!-- END Key Documents Section  -->
+	
+		<!-- Modal Edit Document -->
+		<?php if ($this->manager && $this->not_as_investor): ?>
+        <div id="modal-edit-document" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        	<div class="modal-dialog">
+                <div class="modal-content">
+                	<div class="modal-header">
+                    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h3 class="modal-title">Edit Document</h3>
+                    </div>
+                    <div class="modal-body">
+                    	<div id="form-edit-document">
+                        	<form action="<?php echo $this->getUrl('fund_manager/documents_save/'); ?>" method="post" 
+                                  enctype="multipart/form-data" class="form-horizontal" id="form-validation-2">
+                                
+                                <?php echo $this->renderElement('hidden', 'q', $this->getDict($_REQUEST, 'q')); ?>
+                            	<input type="hidden" name="is_ajax" value="1" />
+                                <input type="hidden" name="source" value="marketing_materials" />
+                                <input type="hidden" class="modal_document_id" name="document_id" value="" />
+                               	<input type="hidden" name="reference_id" value="<?php echo $this->provider['provider_id']; ?>">     
+                                                
+                                <div class="form-group">
+                                	<label class="col-md-5 control-label" for="title">Title *</label>
+                                    <div class="col-md-5">
+                                         <input type="text" name="title" class="form-control modal_title" value="" required>
+                                    </div>
+                                </div>
+                                                                                                
+              					<div class="form-group">
+              						<label class="col-md-5 control-label" for="title">Category *</label>
+                                    <div class="col-md-5">
+                   						<select id="edit_category_id" name="category_id" class="form-control modal_category_title" size="1" required>
+                   							<option value="none" style="display: none;">Please select category</option>
+                       						<?php foreach ($this->categories as $category): ?>
+                               					<option value="<?php echo $category['category_id']; ?>"><?php echo $category['title']; ?></option>
+                       						<?php endforeach; ?>
+                   						</select>
+                   					</div>
+               					</div>
+                                 
+                                <div id="other_edit_cat" class="form-group" style="display: none;">
+           	 						<label class="col-md-5 control-label" for="esub_cat_val">Other <span>*</span></label>
+           	 						<div class="col-md-5">
+            							<input id="esub_cat_val" type="text" class="form-control" name="category_other" value="" required/>
+            						</div>
+            					</div>  
+            					                                              
+								<div class="form-group">
+                                    <label class="control-label col-md-5" for="document_date">Date *</label>
+                                    <div class="col-md-5">
+                                        <input type="text" name="document_date" class="form-control input-datepicker-close modal_document_date" data-date-format="mm/dd/yy" value="" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-md-5 control-label" for="public">Visibility *</label>
+                                   	<div class="col-md-5">
+                                  		<select id="document_open" name="public" class="form-control modal_public" size="1" required>
+                                           	<option value="1">Private</option>
+                                            <option value="2">Open</option>
+                                    	</select>
+                           			</div>
+                              	</div>
+                                
+                                <div class="form-group">
+                         			<label class="col-md-5 control-label" for="document-upload">Upload New Document *</label>
+                               		<div class="col-md-5">
+                  						<input type="file" name="document">
+                                	</div>
+                              	</div>
+                                                
+                         		<div class="form-group">
+                               		<div class="col-md-12 col-md-offset-5">
+                                       	<button type="submit" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Submit</button>
+                               		</div>
+                  				</div>
+                         	</form>
+   						</div>
+           			</div>
+           		</div>
+        	</div>
+		</div>
+		<?php endif; ?>
+		<!-- END Modal Edit Document -->
+	
+					
+		<!-- Critical Questions Section -->
+		<div class="block-section" id="critical-questions">
+		<div class="title_faq">
+			<h2 class="sub-header-border">Critical Questions</h2>
+		</div>
+			<?php $count_question = 0;?>
+
+			<?php foreach ($this->questions as $question) :?>
+				<?php if ($question['answer_id'] || $this->auth->isAdmin()) :?>
+					<?php $count_question ++;?>
+					<div class="block_question q-<?php echo $question['answer_id']; ?>" data-answer_id="<?php echo $question['answer_id']; ?>" 
+							data-question="<?php echo str_replace('{provider_name}',$this->provider['firm'],str_replace('{firm_name}', $this->provider['fund_title'], $question['question'])); ?>" 
+							data-fund_id="<?php echo $this->provider['fund_id']; ?>" 
+                            data-question_id="<?php echo $question['question_id']; ?>">
+                		<div class="question">
+                    		<h3><?php echo str_replace('{provider_name}',$this->provider['firm'],str_replace('{firm_name}', $this->provider['fund_title'], $question['question'])); ?></h3>
+            
+                			<?php if ($this->auth->isAdmin()) :?>
+                				<div class="edit">
+                					<a class="btn_delete ajax-del-q <?php if (!$question['answer_id']) { ?>hidden<?php } ?>" href="#">Delete</a>
+                            		<a class="btn_edit" href="#"><i class="gi gi-pencil"></i>Edit</a>
+                        		</div>
+                        		<div class="delete">
+                           			<span>Delete?</span>
+                            		<a href="<?php echo $this->getUrl('fund_manager/service_providers_answer_delete');?>"
+                            			data-answer_id="<?php echo $question['answer_id']; ?>" class="yes">Yes</a>
+                            		<a href="#" class="no">No</a>
+                       			</div>
+                			<?php endif;?>
+            
+                		</div>
+                		<div class="answer">
+                    		<p><?php echo $question['answer']; ?></p>
+                		</div>
+            		</div>
+				
+				<?php endif;?>
+			<?php endforeach;?>
+			<?php if ($count_question) : ?>
+				<script>
+				$('#critical-questions .title_faq').append('<a href="#" class="expand_all shn"><span class="exp_text">EXPAND ALL</span></a>');
+				</script>
+			<?php endif; ?>	
+				
+			<?php if (!$count_question) : ?>
+				<p><i>Awaiting manager input</i></p>
+			<?php endif; ?>
+		</div>
+		<!-- END Critical Questions Section -->
+		
+	</div><!-- END Page content -->
+</div><!-- END FX Container -->
+
+
+<div class="disclaimer" style="padding: 5px; margin-top: 60px;">
+	<p class="disclaimer-row"><?php echo str_replace("\n", "<br>",$this->disclaimer['text']); ?></p>
+	<?php include './templates/disclaimer_modal.phtml';
+		include "./templates/disclaimer.phtml"; 
+	?>
+</div>
+
+<!-- Scroll to top link, check main.js - scrollToTop() -->
+<a href="javascript:void(0)" id="to-top"><i class="fa fa-angle-up"></i></a>
+
+
+<script src="/js/service_provider_form.js"></script>
+<script src="/js/sp_document_form.js"></script>
+<script>
+
+$(document).ready(function(){
+    $('input[name=telephone]').intlTelInput({utilsScript: '/js/tel-input/utils.js'});
+    $('input[name=fax]').intlTelInput({utilsScript: '/js/tel-input/utils.js'});
+});
+
+$('body').on('click', '.expand_all', function() {
+	if ($(this).find('.exp_text').text()=='EXPAND ALL') {
+    	$(this).find('.exp_text').text('COLLAPSE ALL');
+    	$('.block_question').find(' .edit').show();
+    	$('.block_question').addClass('prev');
+    	$('.block_question').addClass('active');
+    	$('.block_question').children('.answer').show();
+    	$(this).removeClass('shn').addClass('cls');
+    } else {
+        $('.block_question').removeClass('prev');
+        $('.block_question').find(' .edit').hide();
+        $('.block_question').removeClass('active');
+        $('.block_question').children('.answer').hide();
+        $(this).find('.exp_text').text('EXPAND ALL');
+        $(this).removeClass('cls').addClass('shn');
+    }
+});
+        
+$('#provider-information').hover(function(){
+	$(this).find('span.edit-profile').css('background','#A6BFC7');
+	$(this).find('span.view-profile').css('background','#A6BFC7');
+},function(){
+	$(this).find('span.edit-profile').css('background','#8fa6ad');
+	$(this).find('span.view-profile').css('background','#8fa6ad');
+});
+
+// ---------- delete Service Provider Information ----------
+$('.user_delete').click(function(){
+    var obj = $(this);
+    var href = obj.attr('href');
+    delete_confirm(obj,href);
+    return false; 
+});
+
+function delete_confirm(that, href) {
+    var obj_group = $(that).parents('.btn-group'),
+        operation_group = obj_group.find('.user_operations');
+        
+    var delete_row = '<div class="delete"><span>Delete?</span><a href="'+href+'" class="yes">Yes</a><a href="#" class="no">No</a></div>';
+    $(delete_row).insertBefore(operation_group).show();
+    operation_group.hide();
+    return false;
+}
+
+$('body').on('click', '#provider-information .delete .yes',function(){
+    var  obj = $(this),
+         href = obj.attr('href');
+
+    $.ajax({
+           type: "GET",
+           url: href,
+           dataType: 'html',
+           success: function(data) {
+        	   document.location.href = "<?php echo $this->getUrl('fund/service_providers/'.$_REQUEST['q']); ?>";
+           },
+    });
+    return false;
+});
+
+$('body').on('click', '#provider-information .delete .no',function(){
+    var  obj = $(this),
+         delete_group = obj.parent('#provider-information .delete'),
+         user_operation = obj.parents('.btn-group').find('.user_operations');
+         delete_group.remove();
+         user_operation.show();
+    return false;
+});
+// ---------- END delete Service Provider Information ----------
+
+// ---------- edit Service Provider Information ----------
+$('.edit-profile').click(function(){
+	checkDocumentFields();
+	var checkbox = $('#relationship');
+	if (checkbox[0].checked) {
+		$('#relationship_duration + div > button').attr('disabled','disabled').css('opacity','0.4');
+	}
+
+	$('#provider-information').toggle();
+	$('#add-new-service-provider').toggle();
+});
+//---------- END edit Service Provider Information ----------
+
+//---------- Document's Table ----------
+
+    $(function() {
+	webApp.datatables();
+        <?php if ($this->manager && $this->not_as_investor): ?>
+            $('.marketing-materials-datatable').dataTable({
+            	"aaSorting": [[2,"desc"],[0,"asc"]],
+                "aoColumnDefs": [{"bSortable": false, "aTargets": [4]}],
+                "iDisplayLength": 15,
+                "aLengthMenu": [[10, 30, 50, -1], [10, 30, 50, "All"]],
+                "sDom": "<'row'<'col-sm-6 col-xs-5'><'col-sm-6 col-xs-7'>t<'row'<'col-sm-5 hidden-xs'><'col-sm-7 col-xs-12 clearfix'>>",
+                "oLanguage": {
+                    "sInfo": "<strong>_START_</strong>-<strong>_END_</strong> of <strong>_TOTAL_</strong> items",
+                    "sLengthMenu": "_MENU_ Per page",
+                }
+            });
+        <?php else: ?>
+            $('.marketing-materials-datatable').dataTable({
+            	"aaSorting": [[2,"desc"],[0,"asc"]],
+                "aoColumnDefs": [{"bSortable": false, "aTargets": [3]}],
+                "iDisplayLength": 15,
+                "aLengthMenu": [[10, 30, 50, -1], [10, 30, 50, "All"]],
+                "sDom": "<'row'<'col-sm-6 col-xs-5'><'col-sm-6 col-xs-7'>t<'row'<'col-sm-5 hidden-xs'><'col-sm-7 col-xs-12 clearfix'>>",
+                "oLanguage": {
+                    "sInfo": "<strong>_START_</strong>-<strong>_END_</strong> of <strong>_TOTAL_</strong> items",
+                    "sLengthMenu": "_MENU_ Per page",
+                }
+            });
+        <?php endif; ?>
+    });
+
+//---------- END Document's Table ----------
+
+//---------- Critical Questions ----------
+$(function() {
+	tinymce.init({
+    	selector: ".textarea-editor",
+        menubar: false,
+        statusbar: false,
+        plugins: ["colorpicker", "link", "hr", "textcolor", "code","paste"],
+        indent: false,
+        toolbar1 : "bold,italic,underline,bullist,numlist,alignleft,link,forecolor,backcolor,code",
+        toolbar2: "",
+        toolbar3: "",
+        paste_auto_cleanup_on_paste : true,
+        paste_preprocess : function(pl, o) {
+        	o.content = o.content;
+        },
+        paste_postprocess : function(pl, o) {
+           o.node.innerHTML = o.node.innerHTML;
+        },
+        init_instance_callback: function(){
+            ac = tinyMCE.activeEditor;
+            ac.dom.setStyle(ac.getBody(), 'textAlign', 'justify');
+        }
+    });
+
+   $('body').on('click', '.btn_edit', function(){
+        if ($('.edit_section').length > 0) {
+           return false;
+        }
+
+        tinymce.remove();
+        var obj = $(this),
+            container = obj.parents('.block_question'),
+            answer_id = container.data('answer_id'),
+            answer = $(this).parent().parent().parent().find('.answer').html(),
+            question_id = container.data('question_id'),
+            question = container.data('question'),
+            fund_id = container.data('fund_id');
+
+        container.hide();
+        var edit_block = '<div class="edit_section mt20">\n\
+        	                  <input name="edit-faq-question" id="edit-faq-question" type="text" value="'+question+'" />\n\
+                              <div class="wrap_edit_textarea wrap_edit_faq_textarea mt15">\n\
+            	                  <textarea onkeyup="textAreaAdjust(this)" name="edit-faq-answer" id="edit-faq-answer" cols="30" rows="7" \
+                                    class="edit_textarea textarea-editor" >'+answer+'</textarea>\n\
+                              </div>\n\
+                              <div class="faq_manage clearfix">\n\
+                	              <a class="btn_done btn_accept ajax-edit-faq" data-answer_id="'+answer_id+'" data-fund_id="'+fund_id+'" \
+                    	              data-question_id="'+question_id+'" href="\
+                        	          <?php echo $this->getUrl('fund/service_providers_answer_save?is_ajax=1'); ?>">Done</a>\n\
+                                  <a class="btn btn-sm btn-info btn_accept cancel-edit-profile" href="#">Cancel</a>\n\
+                              </div>\n\
+                          </div>\n';
+		$(edit_block).insertAfter(container);
+		
+        $('#edit-faq-answer').css({height : '1px'});
+        var height = 25+$('#edit-faq-answer').prop('scrollHeight')+"px";
+        $('#edit-faq-answer').css({height : height});
+        
+        $('.btn_edit').addClass('disabled');
+
+        tinymce.init({
+            selector: ".textarea-editor",
+            menubar: false,
+            statusbar: false,
+            plugins: ["colorpicker", "link", "hr", "textcolor", "code","paste"],
+            indent: false,
+            toolbar1 : "bold,italic,underline,bullist,numlist,alignleft,link,forecolor,backcolor,code",
+            toolbar2: "",
+            toolbar3: "",
+            paste_auto_cleanup_on_paste : true,
+            paste_preprocess : function(pl, o) {
+                o.content =  o.content;
+            },
+            paste_postprocess : function(pl, o) {
+               o.node.innerHTML = o.node.innerHTML;
+            },
+            init_instance_callback: function(){
+                ac = tinyMCE.activeEditor;
+                ac.dom.setStyle(ac.getBody(), 'textAlign', 'justify');
+            }
+        });
+        return false;
+    });
+
+    $('body').on('click', '.cancel-edit-profile', function() { 
+        var obj = $(this),
+            edit_form = obj.parents('.edit_section'),
+            quest_container = edit_form.prev('.block_question');
+
+        quest_container.show();
+        edit_form.remove();
+        $('.btn_edit').removeClass('disabled');
+        return false;
+    });
+
+    $('body').on('click', '.ajax-edit-faq', function() {
+        var obj = $(this);
+		var answer = tinyMCE.activeEditor.getContent();
+        var data = {
+            fund_id : obj.data('fund_id'),
+          	answer_id : obj.data('answer_id'),
+           	question_id : obj.data('question_id'),
+            answer : answer
+        }
+        $.ajax({
+        	type: "POST",
+            url: '<?php echo $this->getUrl('fund_manager/service_providers_answer_save/' . $_REQUEST['q'] . '/?is_ajax=1'); ?>',
+            data: data,
+            async: false,
+            success: function(data) {   }
+        });
+        $(this).parent().parent().prev().find('.answer').html(answer);
+        $(this).parent().parent().prev().removeAttr('data-answer');
+        $(this).parent().parent().prev().show();
+        $(this).parent().parent().prev().find('.question').find('.edit').find('a:first-child').removeClass('hidden');
+        $(this).parent().parent().remove();
+        return false;
+   });
+        
+   $('body').on('click', '.question .delete .yes' ,function() {
+        var obj = $(this);
+        var data = {'answer_id': obj.data('answer_id')};
+            
+        $.ajax({
+            type: "POST",
+            url: '<?php echo $this->getUrl('fund_manager/service_providers_answer_delete/' . $_REQUEST['q'] . '/?is_ajax=1'); ?>',
+            data: data,
+            async: false,
+            success: function(data) {  }
+        });
+        $(this).parent().hide();
+        $(this).parent().siblings('.edit').show();
+        $(this).parent().siblings('.edit').find('.ajax-del-q').addClass('hidden');
+        $(this).parent().parent().siblings('.answer').html('');
+        return false;
+   });
+        
+   $('body').on('click', '.question  .delete .no', function(event) {
+       event.stopPropagation();
+       $(this).parent().hide();
+       $(this).parent().siblings('.edit').show();
+       return false;
+   });
+        
+   $('body').on('click', '.block_question', function() {
+       qexpand($(this));
+       return false;
+   });
+        
+   function qexpand(that) {
+       if (!that.hasClass('active')) {
+           that.addClass('active');
+           that.prev().addClass('prev');
+           that.children('.answer').show();
+           that.find(' .edit').show();
+       } else {
+           that.find('.delete, .edit').hide();
+           that.removeClass('active');
+           that.prev().removeClass('prev');
+           that.children('.answer').hide();
+       }
+       changeBtn ();
+       return false;
+   }
+
+   function changeBtn () {
+       var all_blocks = $('.block_question').length;
+       var active_blocks = $('.block_question.active').length;
+       if (all_blocks==active_blocks) {
+           $('.expand_all').find('.exp_text').text('COLLAPSE ALL');
+           $('.expand_all').removeClass('shn').addClass('cls');
+       } else if($('.expand_all').text()=='COLLAPSE ALL') {
+           $('.expand_all').find('.exp_text').text('EXPAND ALL');
+           $('.expand_all').removeClass('cls').addClass('shn');
+       }
+       return false;
+   }
+   
+   $('body').on('click', '.ajax-del-q', function(event) {
+       event.stopPropagation();
+       $(this).parent().hide();
+       $(this).parent().siblings('.delete').show();
+       return false;
+   });
+        
+    function textAreaAdjust(o) {
+        o.style.height = "1px";
+        o.style.height = (25+o.scrollHeight)+"px";
+    }
+
+});
+//---------- END Critical Questions ----------
+
+
+</script>
+
+					

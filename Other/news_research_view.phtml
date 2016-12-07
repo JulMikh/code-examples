@@ -1,0 +1,538 @@
+<!-- FX Container -->
+<div id="fx-container" class="fx-opacity">
+	<!-- Page content -->
+	<div id="page-content" class="block news-research-view">
+		<!-- Fund Profile Header -->
+		<div class="" style="margin-top: 10px;">
+			<div class="row remove-margin">
+				<!-- Photo and Name -->
+				
+				<div class="col-md-12 full-article">
+					<div class="col-md-1 nav-article">
+							<a href="<?php echo $this->getUrl('fund/news_research/'.$_REQUEST['q']); ?>"><div class="ns_go_back"></div></a>
+						<?php if ($this->manager && $this->not_as_investor) { ?>
+							<?php if ($this->news) { ?>
+								<div id="edit-article"></div>
+								<div class="delete_article"></div>
+									<div class="delete hidden">
+                           				<div>Delete?</div>
+                            			<a href="<?php echo $this->getUrl('fund_manager/news_research_delete/'.$_REQUEST['q'].'/?is_ajax=1&news_id='.$this->news['news_id']); ?>" class="yes">Yes</a>
+                            			<a href="#" class="no">No</a>
+                       				</div>
+                       		<?php } ?>
+						<?php } ?>
+					</div>
+					<div class="col-md-10" id="full-article">
+					<?php if ($this->news) { ?>
+						<div class="article-title"><?php echo $this->news['title']; ?> </div>
+						
+						<div style="margin: -20px 0 25px;">
+							<?php $this->getMessageBlock(); ?>
+						</div>
+						
+						<div class="article-info">
+						<?php if ($this->news['user_name']) { ?>
+							<div class="user-information">
+								<div class="user-name">
+									<?php echo $this->news['user_name'] ? $this->news['user_name'] : ''; ?>
+								</div>
+								<div class="article-date"><img src="/img/date.svg"> <?php echo date('F jS, Y', strtotime($this->news['news_date'])); ?></div>
+							</div>
+						<?php } else { ?>
+							<div class="article-date"><img src="/img/date.svg"> <?php echo date('F jS, Y', strtotime($this->news['news_date'])); ?></div>
+						<?php } ?>
+						</div>
+						
+						<div class="article-body">
+							<?php if ($this->news['article_type']=='link' && $this->news['link']) { ?>
+								<div class="row">
+									<div class="article-picture" style="width: 233px; height: 131px; float: left;  background-size: contain !important; background: url('<?php echo strpos($this->news['image'], '_files/logo/') ? $this->getUrl($this->news['image']) : $this->getUrl('fund_files/news/'.$this->news['image']);?>') no-repeat;" ></div>
+									<?php echo $this->news['content']; ?> 
+									<p class="text-right"> <a href="<?php echo $this->news['link']; ?>" target="_blank">Read more...</a> </p>
+								</div>
+							<?php } else  echo $this->news['content']; ?> 
+						</div>
+						
+						
+							<?php if ($this->news['image'] && $this->news['article_type']=='text') { ?>
+							<script>
+							$(function() {
+								if ($('.article-body').children().length) {
+									$('.article-body p:first-child').after('<div class="article-picture" style="float: left; background: url(\'/fund_files/news/<?php echo $this->news["image"];?>\');" ></div>');
+								} else {
+									$('.article-body').prepend('<div class="article-picture" style="float: left; background: url(\'/fund_files/news/<?php echo $this->news["image"];?>\');" ></div>');
+								}
+							});
+							</script>
+							<?php }  ?>
+
+							
+							<?php if ($this->news['link'] && $this->news['article_type']=='video') { ?>
+							<script>
+								<?php if (strpos($this->news["link"], '</script>')) {?>
+									</script><div class="article-frame" style="float: left;"><?php echo $this->news["link"];?></div><script>
+
+								<?php } else {?>
+								$(function() {
+									if ($('.article-body').children().length) {
+										$('.article-body p:first-child').after('<div class="article-frame" style="float: left;"><?php echo $this->news["link"];?></div>');
+									} else {
+										$('.article-body').prepend('<div class="article-frame" style="float: left;"><?php echo $this->news["link"];?></div>');
+									}
+								});
+								<?php } ?>
+							</script>
+							<?php } ?>
+
+							
+							
+							<?php $jpg = str_replace('.pdf', '.jpg', $this->news["image"]); ?>
+							<?php if ($this->news['image'] && $this->news['article_type']=='pdf') { ?>
+							<script>
+								if ($('.article-body').children().length) {
+									$('.article-body p:first-child').after('<div class="article-pdf" style="float: left;"><a href="<?php echo $this->getUrl('document/view_frame/'.$this->news["image"]);?>" target="_blank" data-toggle="tooltip" title="View Document">\
+											<div class="doc-preview" style="background: url(\'<?php  echo '/fund_files/news/'.$jpg ;?>\') no-repeat;"></div>\
+											<div class="pdf-buttons"><a class="btn btn-yes view-all-pdf" href="<?php echo $this->getUrl('document/view_frame/'.$this->news["image"]);?>"><i class="fa fa-expand" aria-hidden="true"></i></a>\
+											<a class="btn btn-yes download-pdf" download target="_blank" href="<?php echo $this->getUrl("document/view/".$this->news["image"]); ?>">Download pdf</a></div></a></div>');
+								} else {
+									$('.article-body').prepend('<div class="article-pdf" style="margin-top: 16px; float: left;"><a href="<?php echo $this->getUrl("document/view_frame/".$this->news["image"]); ?>" target="_blank" data-toggle="tooltip" title="View Document">\
+											<div class="doc-preview" style="background: url(\'<?php  echo '/fund_files/news/'.$jpg ;?>\') no-repeat;"></div>\
+											<div class="pdf-buttons"><a class="btn btn-yes view-all-pdf" href="<?php echo $this->getUrl('document/view_frame/'.$this->news["image"]);?>"><i class="fa fa-expand" aria-hidden="true"></i></a>\
+											<a class="btn btn-yes download-pdf" download target="_blank" href="<?php echo $this->getUrl("document/view/".$this->news["image"]); ?>">Download pdf</a></div></a></div>');
+								}
+							</script>
+							<?php } ?>
+						
+					
+						<div class="row" style="display: inline-block;">
+							<div class="disclaimer" style="margin-top: 60px;">
+								<p class="disclaimer-row"><?php echo str_replace("\n", "<br>",$this->disclaimer['text']); ?></p>
+								<?php include './templates/disclaimer_modal.phtml';
+									include "./templates/disclaimer.phtml"; 
+								?>	
+							</div>
+						</div>
+					<?php } else  {?>	
+						<p><i>Awaiting manager input</i></p>
+					<?php }?>
+					</div>
+					
+					<div class="col-md-1">	</div>
+				</div>
+			</div>
+		</div>
+		
+	<input hidden id="inputmce-text" value="<?php echo strlen($this->news['content']); ?>">	
+	
+	<!-- EDIT Article -->
+	<div id="form-add-new-article" class="hidden form-add-new-article" style="margin-bottom: 60px;">
+		<form action="<?php echo $this->getUrl('fund_manager/news_research_save'); ?>" method="post" enctype="multipart/form-data" class="form-horizontal" id="form-validation">
+			<input hidden name="is_ajax" value="1">
+			<input hidden name="public" value="<?php echo $this->news["public"];?>">
+			<input hidden name="news_id" value="<?php echo $this->news["news_id"];?>">
+			<input hidden name="file_delete" value="0">
+			<input hidden name="user_id" value="<?php echo $this->news["user_id"];?>">
+			<input hidden name="article_type" value="<?php echo $this->news["article_type"];?>">
+			
+			<?php echo $this->renderElement('hidden', 'q', $this->getDict($_REQUEST, 'q')); ?>
+			
+			<div class="row" style="margin-bottom: 20px;">
+				<label id="article_visibility">Article Visibility:</label> 
+				<?php if ($this->news['public']==2) { ?> 
+					<div class="article_public public_open"></div>
+				<?php } else { ?>
+					<div class="article_public public_private"></div>
+				<?php } ?>
+				
+				<button type="submit" class="btn btn-yes pull-right button-text-publish"><span>Publish</span></button>
+				
+				<?php if ($this->news['article_type']=='text') { ?> 
+					<div class="add-file text-type-add <?php if ($this->news['image']) echo 'hidden'?> pull-right">
+						<button type="button"><img class="pre-icon-image" src="/img/photo-off.svg"> Add Photo</button>
+						<input type="file" name="news_image"  id="mm-file" value="">
+					</div>
+				<?php } ?>
+			</div>
+			
+			<div class="row">
+				<textarea id="new_article_title" maxlength="100" rows="1" name="title" required placeholder="Title"><?php echo $this->news["title"];?></textarea>
+			</div>
+			
+			<div class="row" style="margin-top: 4px; margin-bottom: 19px;">
+				<div class="author-group">
+  					<img class="image-off <?php if ($this->news["user_name"]!='') echo 'hidden'?>" 
+  						src="/img/author-off.svg">
+  					<img class="image-on <?php if ($this->news["user_name"]=='') echo 'hidden'?>" src="/img/author-on.svg">
+  					<input type="text" class="form-control" id="author-name" name="user_name" placeholder="Author Name" 
+  					value="<?php  echo $this->news['user_name'] ? $this->news['user_name'] : '';?>" >
+				</div>
+				
+				<div class="date-group pull-right">
+  					<img class="image-off hidden" src="/img/date-off.svg">
+  					<img class="image-on " src="/img/date-on.svg">
+  					<input type="text" data-date-format="MM dd, yyyy" name="news_date" readonly="readonly" required 
+  						class="form-control input-datepicker-close" placeholder="Select a date" value="<?php echo date('F jS, Y', strtotime($this->news['news_date'])); ?>">
+				</div>
+			</div>
+			<?php if ($this->news['article_type']=='text') { ?> 
+				<div class="row text-type-add ">
+					<div class="file-name <?php if (!$this->news['image']) echo 'hidden';?>"><img class="image-on" src="/img/photo-on.svg"> <?php echo $this->news['image'];?> 
+						<button type="button" class="btn btn-danger">Remove</button>
+					</div>
+				</div>
+			<?php } ?>
+			
+				<div class="row video-type-add <?php if ($this->news['article_type']!='video') echo 'hidden'?> ">
+					<p> Paste the embed code from the video website (Youtube, Vimeo, etc...) into the box below to insert it into the article. 
+					<textarea id="video-link" rows="1" name="link" placeholder='<iframe src="https://player.vimeo.com/video/linktovideo" width="760" height="430" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>'><?php echo $this->news['link'];?></textarea>
+				</div>
+			
+			<?php if ($this->news['article_type']=='pdf') { ?> 
+				<script> $('#mm-file').remove(); </script> 
+				
+				<input hidden name="news_image" id="pdf-image" value="<?php echo $this->news['image'];?>">
+				<input hidden name="link" id="pdf-link" value="<?php echo $this->news['link'];?>">
+				
+				<div class="row pdf-type-add <?php if ($this->news['image']) echo 'hidden'; ?>">
+					<div id="drop-zone" class="upload-drop-zone <?php if ($this->news['image']) echo 'hidden'; ?>">
+                		<div class="upload-center">
+                  	  		<i class="pdf-doc-upload"></i>
+                		</div>
+                		<p>Drag &amp; Drop the PDF here or <b>BROWSE FILE</b>.
+                			<input type="file" id="mm-file2" value=""></p>
+            		</div>
+            	</div>
+ 
+            	<div class="row pdf-preview-add <?php if(!$this->news['image']) echo 'hidden'?>" style="display: inline-flex; position: relative; top: -10px;">
+            		<div id="pdf-preview" class="pdf-preview <?php if ($this->news['content']=='') echo 'no-content';?>" style=" background: url('<?php echo $this->news['link'] ? $this->getUrl('fund_files/news/'.$this->news['link']) : ($jpg ? $this->getUrl('fund_files/news/'.$jpg): ''); ?>'); "></div>
+            		<div class="preview-info">
+						<div class="file-name"><img class="image-on" src="/img/pdf.svg"> <?php echo $this->news['image'];?> <button type="button" class="btn btn-danger" style="margin: 7px;">Remove</button></div>
+						<p>Don't like this preview? <b>&nbsp;Upload your own</b><input type="file" value="" id="mm-file5" style="top: 0px; left: 160px; width: 140px;" /></p>
+					</div>
+				</div> 
+				
+            <?php } ?>
+            
+            <?php if ($this->news['article_type']=='link') { ?> 
+            	<script> $('.video-type-add').remove(); </script>
+            	<div class="row link-type-add">
+               		<div class="link-group">
+  						<img class="image-off <?php if ($this->news['link']) echo 'hidden'; ?>" src="/img/link-off.svg">
+  						<img class="image-on <?php if (!$this->news['link']) echo 'hidden'; ?>" src="/img/link-on.svg">
+  						<input type="text" class="form-control" id="link-title" name="link" placeholder="Article Link (https://...)" value="<?php echo $this->news['link']; ?>">
+					</div>
+					<button type="button" class="btn btn-danger" <?php if (!$this->news['link']) echo 'disabled'; ?> >Clear</button>
+				</div>
+			
+				<div id="link-story" class="row">
+					<div class="link-logo-area"> 
+						<div class="link-logo" style="background: url('<?php echo strpos($this->news['image'], '_files/logo/') ? $this->getUrl($this->news['image']) : $this->getUrl('fund_files/news/'.$this->news['image']); ?>') no-repeat;"> </div>
+						<p>Wrong logo? <span>UPLOAD YOUR OWN</span><input type="file" id="mm-file3" name="news_image" value=""><input type="text" hidden id="mm-file-link" name="logo" value=""></p>
+					</div>
+					<div class="link-story-area wrap_edit_textarea">
+						<textarea name="content" id="short_textarea_editor" class="form-control textarea-editor">
+							<?php echo $this->news['content']; ?> 
+						</textarea>
+					</div>
+				</div>
+			<?php } else { ?>
+			<div class="row">
+				<div class="wrap_edit_textarea ">
+					<textarea name="content" id="new_article_textarea_editor" class="form-control textarea-editor" >
+						<?php echo $this->news['content']; ?> 
+					</textarea>
+				</div>
+			</div>
+			<?php } ?>
+		</form>
+		<div class="row" style="margin: 50px 0px 0px 0px;">	
+			<div class="disclaimer" style="margin-top: 60px;">
+				<p class="disclaimer-row"><?php echo str_replace("\n", "<br>",$this->disclaimer['text']); ?></p>
+				<?php include './templates/disclaimer_modal.phtml';
+					include "./templates/disclaimer.phtml"; 
+				?>	
+			</div>
+		</div>
+	</div>
+	<!-- END EDIT New Article -->
+		
+		
+	</div>
+</div>
+
+
+		<?php if ($this->manager && $this->not_as_investor): ?>
+	        <div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+       			<div class="modal-dialog">
+                	<div class="modal-content">
+                        <div class="modal-header">
+                        	Any unpublished content will be lost!
+                            <button class="btn close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                        	Are you sure you want to navigate away?
+                        	<div class="confirm-button">
+								<button type="button" class="btn btn-primary">Yes</button>
+								<button type="button" data-dismiss="modal" class="btn btn-default">No</button>
+							</div>
+                         </div>
+                     </div>
+                 </div>
+            </div>
+        <?php endif; ?>
+	
+
+<!-- Scroll to top link, check main.js - scrollToTop() -->
+
+<a href="javascript:void(0)" id="to-top"><i class="fa fa-angle-up"></i></a>
+
+
+<?php if ($this->manager && $this->not_as_investor): ?>
+<script src="/js/vendor/jquery-ui.js"></script>
+<script src="/js/news_research.js"></script>
+
+<script>
+var static_logo = ['barrons@2x.png','bloomberg@2x.png','cnbc@2x.png','forbes@2x.png','fox@2x.png','ft@2x.png','seekingalpha@2x.png','wsj@2x.png'];						
+var logos = [];
+var urls = [];
+<?php for($i=0; $i<count($this->logos); $i++) { ?>
+	logos.push('<?php echo $this->logos[$i]['logo'];?>');
+	urls.push('<?php echo $this->logos[$i]['value'];?>');
+<?php } ?>
+
+
+$('.article-body p a').each(function(){
+	var link = $(this).attr('href');
+	if (link.indexOf('http') == -1)  $(this).attr('href', 'http://'+link)
+});
+
+$('.article-body a').attr('target','_blank');	
+
+$('#edit-article').click(function(){
+	$('.full-article').addClass('hidden');
+	$('#form-add-new-article').removeClass('hidden');
+	$('#new_article_title').css('height',document.getElementById('new_article_title').scrollHeight).css('overflow','hidden');
+});
+
+$('.delete_article').click(function(){
+	$(this).addClass('hidden');
+	$('.delete').removeClass('hidden');
+});
+$('.delete .no').on('click',function(){
+	$('.delete_article').removeClass('hidden');
+	$('.delete').addClass('hidden');
+});
+
+
+
+$('.download-pdf').click(function(){
+	
+});
+$('#link-title').change(function(){
+	var parser = parse_url($(this).val());
+
+	if (parser) { 
+		var logo_name = '';
+		var title = parser.split(".");
+		if (title[0] != 'www') title = title[0]; else title = title[1];
+			
+		for (var i=0; i<static_logo.length; i++) if (static_logo[i].indexOf(title) >= 0) { logo_name = static_logo[i]; break;};
+		if (!logo_name) for (var i=0; i<urls.length; i++) if (urls[i].indexOf(parser) >= 0) { logo_name = logos[i]; break;};
+		if (!logo_name) $('.link-logo').removeAttr('style');
+		else {
+			$('.link-logo').css('background','url("<?php echo $this->getUrl('fund_files/logo/');?>'+logo_name+'") no-repeat scroll 0 0');
+			$('#mm-file-link').val(''+logo_name);
+		}
+	} else { 
+		$(this).val(''); 
+		$('.link-logo').removeAttr('style');
+	}
+});
+
+function parse_url(href){
+	var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)(\/[^?#]*)(\?[^#]*|)(#.*|)$/);
+	if (match) return  match[3];
+	return false;
+}	
+
+$("#mm-file2").change(function () {
+	if (this.files[0].type != 'application/pdf') {
+		alert('This file type is not supported!');
+	} else {
+		$('input[name=file_delete]').val('0');
+		
+		var fd = new FormData;
+		if ($('#pdf-image').val()) {
+			fd.append('file_name', $('#pdf-image').val());
+			delete_tmp_file(fd);
+			fd.append('file_name', $('#pdf-image').val().replace('.pdf','.jpg'));
+			delete_tmp_file(fd);
+		}
+		if ($('#pdf-link').val()) {
+			fd.append('file_name', $('#pdf-link').val());
+			delete_tmp_file(fd);
+		}
+		drop = false;
+		$('.pdf-preview-add').removeClass('hidden');
+		$('.pdf-type-add .file-name').removeClass('hidden');
+		$('.pdf-type-add').addClass('hidden');
+
+		var $input = $(this);
+	   
+	    fd.append('news_image', $input.prop('files')[0]);
+	    $('.pdf-preview').removeAttr('style');
+   	 	$.ajax({
+    	    type: "POST",
+       		contentType: false,
+	   	 	processData: false,
+         	url: '<?php echo $this->getUrl('fund_manager/upload_temp/' . $_REQUEST['q'] . '/?is_ajax=1'); ?>',
+         	data: fd,
+         	dataType: 'html',
+         	async: false,
+         	success: function(data) {
+         		$('.pdf-preview-add .file-name').removeClass('hidden').html('<img class="image-on" src="/img/pdf.svg"> ' + data + ' <button type="button" class="btn btn-danger" style="margin: 7px;">Remove</button>');
+         		$('.pdf-preview').removeClass('hidden');
+         		$('#pdf-preview').css('background',"url(\'<?php echo $this->getUrl('fund_files/news/temp/'); ?>"+ data.replace(".pdf",".jpg") + "\')");
+         		$('.preview-info p').removeClass('hidden');
+         		$('#pdf-image').val(data);
+         	},
+     	});
+   	}
+});
+
+$('.pdf-preview-add .file-name').on('click','button.btn-danger',function(){
+	$('.pdf-preview-add').addClass('hidden');
+	$('#drop-zone').removeClass('hidden');
+	$('.pdf-type-add').removeClass('hidden');
+	var fd = new FormData;
+	if ($('#pdf-image').val()) {
+		fd.append('file_name', $('#pdf-image').val());
+		delete_tmp_file(fd);
+		fd.append('file_name', $('#pdf-image').val().replace('.pdf','.jpg'));
+		delete_tmp_file(fd);
+		$('#pdf-image').val('');
+	}
+	if ($('#pdf-link').val()) {
+		fd.append('file_name', $('#pdf-link').val());
+		delete_tmp_file(fd);
+		$('#pdf-link').val('');
+	}
+	$('#mm-file2').val('');
+	fd = new FormData();
+	$('input[name=file_delete]').val('1');
+});
+
+<?php if ($this->news['article_type']=='pdf') : ?> 
+
+/* --------- DROP ZONE #drop-zone ---------- */
+
+var dropZone = $('#drop-zone'),
+    maxFileSize = 10000000; 
+var fd = new FormData();
+var drop = false;
+
+if (typeof(window.FileReader) == 'undefined') {
+    dropZone.text('Not supported by your browser!');
+    dropZone.addClass('error');
+}
+
+dropZone[0].ondragover = function() {
+    dropZone.addClass('hover');
+    return false;
+};
+
+dropZone[0].ondragleave = function() {
+    dropZone.removeClass('hover');
+    return false;
+};
+
+dropZone[0].ondrop = function(event) {
+    event.preventDefault();
+    dropZone.removeClass('hover');
+
+    var file = event.dataTransfer.files[0];
+
+    /* Check file size */
+    if (file.size > maxFileSize) {
+        dropZone.text('The file very large!');
+        dropZone.addClass('error');
+        return false;
+    }
+    $('#mm-file2').remove();
+    $('#drop-zone p b').after('<input type="file" id="mm-file2" name="news_image" value="'+file.name+'">');
+	$('.pdf-preview-add').removeClass('hidden');
+	$('.pdf-type-add').addClass('hidden');
+	$('.pdf-preview').addClass('hidden');
+	
+	$('.pdf-preview-add .file-name').html('<img class="image-on" src="/img/pdf.svg"> ' + file.name + ' <button type="button" class="btn btn-danger" style="margin: 7px;">Remove</button>');
+    drop = true;
+    
+    fd.append("news_image", file);
+    $.ajax({
+	    type: "POST",
+   		contentType: false,
+   	 	processData: false,
+     	url: '<?php echo $this->getUrl('fund_manager/upload_temp/' . $_REQUEST['q'] . '/?is_ajax=1'); ?>',
+     	data: fd,
+     	dataType: 'html',
+     	async: false,
+     	success: function(data) {
+     		$('.pdf-preview-add .file-name').removeClass('hidden').html('<img class="image-on" src="/img/pdf.svg"> ' + data + ' <button type="button" class="btn btn-danger" style="margin: 7px;">Remove</button>');
+     		$('.pdf-preview').removeClass('hidden');
+     		$('#pdf-preview').css('background',"url(\'<?php echo $this->getUrl('fund_files/news/temp/'); ?>"+ data.replace(".pdf",".jpg") + "\')");
+     		$('.preview-info p').removeClass('hidden');
+     		$('#pdf-image').val(data);
+     		//$('#pdf-link').val(data.replace('.pdf','.jpg'));
+     	},
+ 	});
+};
+
+/* --------- END DROP ZONE ---------- */
+
+$("#mm-file5").change(function() {
+	if (this.files[0].type != 'image/jpeg' && this.files[0].type != 'image/png' && this.files[0].type != 'image/gif') {
+		alert('This file type is not supported!');
+	} else {
+		var fd2 = new FormData;
+		if ($('#pdf-link').val()) {
+			fd2.append('file_name', $('#pdf-link').val());
+			delete_tmp_file(fd2);
+		}
+		drop = false;
+		var $input = $(this);	
+		fd2 = new FormData;   
+	    fd2.append('news_image', $input.prop('files')[0]);
+	    
+   	 	$.ajax({
+    	    type: "POST",
+       		contentType: false,
+	   	 	processData: false,
+         	url: '<?php echo $this->getUrl('fund_manager/upload_temp/' . $_REQUEST['q'] . '/?is_ajax=1'); ?>',
+         	data: fd2,
+         	dataType: 'html',
+         	async: false,
+         	success: function(data) {
+         		$('#pdf-preview').css('background',"url(\'<?php echo $this->getUrl('fund_files/news/temp/'); ?>"+ data + "\')");
+         		$('#pdf-link').val(data);
+         	},
+     	});
+	}
+});
+<?php endif; ?>
+function delete_tmp_file(data)
+{
+	data.append('is_ajax', 1);
+	$.ajax({
+	    type: "POST",
+   		contentType: false,
+   	 	processData: false,
+     	url: '<?php echo $this->getUrl('fund_manager/delete_tmp_file/' . $_REQUEST['q'] . '/?is_ajax=1'); ?>',
+     	data: data,
+     	dataType: 'html',
+     	async: false,
+     	success: function(data) {  },
+ 	});
+}
+
+</script>
+<?php endif; ?>

@@ -1,0 +1,119 @@
+<div class="main">
+	<div class="header">
+    	<div class="path">
+     		<?php include_once 'module/Admin/view/admin/menu.phtml';?>
+    	</div>
+    	<div class="logo"></div>
+  	</div>
+  	<div class="sidebar">
+   		<div class="circles"></div>
+	</div>
+  	<div class="content">
+  		<h2>Readers of Our Blog</h2>
+  		<div class="row">
+  			<div class="col-md-2">
+  				<select class="form-control" id="period">
+  					<option value="7"> Last Week</option>
+  					<option value="30"> Last Month</option>
+  					<option value="3"> Last 3 Month</option>
+  					<option value="6"> Last 6 Month</option>
+  					<option value="1"> Last Year</option>
+  					<option value="13"> All Time (from oct'16)</option>
+  				</select>
+  			</div>
+  		</div>
+  		
+   		<canvas id="readers" width="500" height="400"></canvas>
+  		
+  		<p><b>Total Responses:</b> <span id="total"><?php $sum = +$readers['developer'] + $readers['manager'] + $readers['merchant']; echo $sum;?></span></p>
+  		<p></p>
+  		<ul>
+  			<li><b>Developers:</b> <span id="dev"><?php echo $readers['developer']?></span></li>
+  			<li><b>Managers:</b> <span id="man"><?php echo $readers['manager']?></span></li>
+  			<li><b>Merchants:</b> <span id="merch"><?php echo $readers['merchant']?></span></li>
+  		</ul>
+	</div>
+</div> 
+  
+  
+  
+  
+  <script src="<?php echo $this->basePath();?>/js/chart/Chart.min.js"></script>   
+  <script>
+  var readers= document.getElementById("readers").getContext("2d");
+
+  var pieData = {
+		    labels: [ "Developers (<?php $rd = $sum==0 ? 0 : round($readers['developer']*100/$sum, 0); echo $rd;?>%)", 
+		  		      "Managers (<?php $rm = $sum==0 ? 0 :round($readers['manager']*100/$sum, 0); echo $rm;?>%)", 
+		  		      "Merchants (<?php if ($rd || $rm) echo 100-$rd-$rm; else echo '0' ?>%)" ],
+		    datasets: [
+		        {
+		            data: [ <?php echo $readers['developer']?>, <?php echo $readers['manager']?>, <?php echo $readers['merchant']?>],
+		            backgroundColor: [ "#878BB6", "#4ACAB4", "#FF8153" ],
+		            hoverBackgroundColor: [ "#7C7FA6", "#45B7A4", "#D56D47"]
+		        }]
+		};
+  var pieOptions = {
+		    segmentShowStroke : true,
+		    animateScale : true,
+		    responsive: false,
+	}
+  var myPieChart = new Chart(readers,{
+	    type: 'pie',
+	    data: pieData,
+	    options: pieOptions
+	});
+
+$('#period').change(function(){
+
+	$.ajax({
+        type: "POST",
+        url: '/admin/blog/readers',
+        data:({ 'period': $('#period option:selected').val(), 'is_ajax': 1 }),
+        async: false,
+        success: function(msg) {  
+			var dev = parseInt(msg.readers.developer),
+				man = parseInt(msg.readers.manager),
+				merch = parseInt(msg.readers.merchant),
+				r_merch = 0,
+				sum = dev + man + merch;
+			if (sum) {
+				r_dev = Math.round(dev * 100 / sum),
+				r_man = Math.round(man * 100 / sum);
+			} else {
+				r_dev = 0; r_man = 0;
+			}
+			
+			$('#total').html(sum);
+			$('#dev').html(dev);
+			$('#man').html(man);
+			$('#merch').html(merch);
+			$('#readers').remove();
+			$('.row').after('<canvas id="readers" width="500" height="400"></canvas>');
+			
+			readers= document.getElementById("readers").getContext("2d");
+			if (r_dev || r_man) r_merch = 100 - r_dev - r_man;
+			pieData = { labels: [ "Developers (" + r_dev + "%)" , 
+				  		      "Managers (" + r_man + "%)", 
+				  		      "Merchants (" + r_merch + "%)" ],
+				    datasets: [{
+				            data: [ dev, man, merch],
+				            backgroundColor: [ "#878BB6", "#4ACAB4", "#FF8153" ],
+				            hoverBackgroundColor: [ "#7C7FA6", "#45B7A4", "#D56D47"]
+				        }]
+				};
+			myPieChart = new Chart(readers,{
+			    type: 'pie',
+			    data: pieData,
+			    options: pieOptions
+			});
+        }
+    });
+
+    
+});
+  
+  </script>
+  
+     
+     
